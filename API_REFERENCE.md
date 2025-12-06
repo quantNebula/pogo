@@ -1,25 +1,6 @@
 # pogo API Reference
 
 **Complete data reference for Pokémon GO game data scraped from LeekDuck**
-
-This document provides a comprehensive overview of all available data endpoints, their structures, and usage patterns for the pogo API.
-
----
-
-## Table of Contents
-
-1. [Overview](#overview)
-2. [Data Endpoints](#data-endpoints)
-3. [Eggs Data](#eggs-data)
-4. [Raids Data](#raids-data)
-5. [Research Data](#research-data)
-6. [Rocket Lineups Data](#rocket-lineups-data)
-7. [Events Data](#events-data)
-8. [Common Patterns](#common-patterns)
-9. [Data Updates](#data-updates)
-
----
-
 ## Overview
 
 pogo provides five JSON endpoints containing live Pokémon GO data. Each endpoint is available in both formatted (`.json`) and minified (`.min.json`) versions.
@@ -37,42 +18,25 @@ pogo provides five JSON endpoints containing live Pokémon GO data. Each endpoin
 | Rocket Lineups | `rocketLineups.json` | `rocketLineups.min.json` | Array of Rocket member objects |
 | Events | `events.json` | `events.min.json` | Array of event objects |
 
----
-
 ## Data Endpoints
 
 ### Quick Access URLs
 
 ```
-Combined (formatted): https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/combined.json
 Combined (minified):  https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/combined.min.json
-
-Eggs (formatted):    https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/eggs.json
 Eggs (minified):     https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/eggs.min.json
-
-Raids (formatted):   https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/raids.json
 Raids (minified):    https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/raids.min.json
-
-Research (formatted): https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/research.json
 Research (minified):  https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/research.min.json
-
-Rocket Lineups (formatted): https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/rocketLineups.json
 Rocket Lineups (minified):  https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/rocketLineups.min.json
-
-Events (formatted):  https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/events.json
 Events (minified):   https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/events.min.json
 ```
-
----
 
 ## Combined Data
 
 **What it contains:** A single JSON file containing all Pokémon GO data from all categories in one convenient endpoint.
-
 **Data structure:** Object with five properties (events, raids, research, eggs, rocketLineups)
 
 ### Combined Object Schema
-
 ```typescript
 {
   events: Array<EventObject>,           // All events data
@@ -83,15 +47,7 @@ Events (minified):   https://raw.githubusercontent.com/quantNebula/pogo/refs/hea
 }
 ```
 
-### Benefits of the Combined Endpoint
-
-- **Single Request:** Fetch all game data with one API call
-- **Reduced Latency:** Fewer network requests = faster load times
-- **Data Consistency:** All data is from the same scrape run
-- **Simplified Code:** No need to manage multiple endpoints
-
 ### Usage Example
-
 ```javascript
 // Fetch all Pokémon GO data at once
 fetch('https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/combined.json')
@@ -105,16 +61,12 @@ fetch('https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/
   });
 ```
 
----
-
 ## Eggs Data
 
 **What it contains:** Information about which Pokémon can hatch from different egg types, including rarity, CP ranges, and special flags.
-
 **Data structure:** Array of Pokémon objects
 
 ### Pokémon Object Schema
-
 ```typescript
 {
   name: string,                    // Pokémon name (e.g., "Bulbasaur")
@@ -134,7 +86,6 @@ fetch('https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/
 ```
 
 ### Rarity Values
-
 - **5** = Ultra Rare
 - **4** = Very Rare
 - **3** = Uncommon
@@ -162,19 +113,15 @@ fetch('https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/
 ```
 
 ### Key Use Cases
-
 - Filter by egg type to show available hatches
 - Identify shiny-eligible Pokémon (`canBeShiny: true`)
 - Find Adventure Sync rewards (`isAdventureSync: true`)
 - Locate regional exclusives (`isRegional: true`)
 - Sort by rarity for hatch prioritization
 
----
-
 ## Raids Data
 
 **What it contains:** Current raid boss information across all tiers, including CP ranges, types, weather boosts, and shiny availability.
-
 **Data structure:** Array of raid boss objects
 
 ### Raid Boss Object Schema
@@ -277,16 +224,12 @@ fetch('https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/
 - Build type-effective counter teams
 - Track shiny-eligible raid bosses
 
----
-
 ## Research Data
 
 **What it contains:** Current Field Research tasks with rewards, plus seasonal breakthrough and Spinda pattern information.
-
 **Data structure:** Object containing `seasonalInfo` and `tasks` array
 
 ### Root Object Schema
-
 ```typescript
 {
   seasonalInfo: {
@@ -398,12 +341,9 @@ Common task categories:
 - Check current Spinda patterns available
 - View Research Breakthrough rewards
 
----
-
 ## Rocket Lineups Data
 
 **What it contains:** Team GO Rocket encounter information including Giovanni, Leaders (Cliff, Arlo, Sierra), and type-specialized Grunts with their possible Pokémon lineups.
-
 **Data structure:** Array of Rocket member objects
 
 ### Rocket Member Object Schema
@@ -809,37 +749,7 @@ const eventsByType = groupBy(events, 'eventType');
 const tasksByType = groupBy(research.tasks, 'type');
 ```
 
----
-
-## Data Updates
-
-### Update Frequency
-
-- **Eggs:** Updated when egg pools rotate (typically monthly or during events)
-- **Raids:** Updated when raid boss rotation changes (weekly/monthly)
-- **Research:** Updated when field research tasks rotate (monthly)
-- **Rocket Lineups:** Updated when Giovanni/Leader lineups change (monthly)
-- **Events:** Updated continuously as new events are announced
-
-### Scraping Pipeline
-
-The data is updated through a three-stage pipeline:
-
-1. **Base Scraping** (`npm run scrape`) - Collects baseline data from LeekDuck
-2. **Detail Scraping** (`npm run detailedscrape`) - Enriches event data with detailed information
-3. **Detail Combination** (`npm run combinedetails`) - Merges enriched data back into events
-
-### Data Freshness
-
-Data is scraped from LeekDuck, which aggregates official information from Niantic. The data is current as of the last scraping run. For most up-to-date information, run the scraping pipeline regularly.
-
----
-
 ## Notes and Best Practices
-
-### Image URLs
-
-All image URLs point to LeekDuck's CDN (`cdn.leekduck.com` or `leekduck.com/assets`). These are stable but external resources.
 
 ### Date/Time Handling
 
@@ -877,24 +787,3 @@ When consuming this data:
 - Validate date parsing before comparisons
 - Check array lengths before accessing elements
 - Handle image loading failures for external URLs
-
----
-
-## Summary
-
-The pogo API provides five comprehensive data endpoints for Pokémon GO:
-
-1. **Eggs** - Hatch pools with rarity and flags
-2. **Raids** - Current bosses with CP ranges and types
-3. **Research** - Field tasks with encounter and item rewards
-4. **Rocket Lineups** - Shadow Pokémon encounter lineups
-5. **Events** - Current and upcoming events with detailed extra data
-
-All data is structured as JSON, uses consistent patterns for common fields (images, booleans, CP ranges), and is updated regularly to reflect current game state.
-
-For specific field documentation and usage examples, refer to the individual documentation files:
-- [Eggs.md](Eggs.md)
-- [Raids.md](Raids.md)
-- [Research.md](Research.md)
-- [RocketLineups.md](RocketLineups.md)
-- [Events.md](Events.md)
