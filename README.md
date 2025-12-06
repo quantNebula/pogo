@@ -18,9 +18,8 @@ pogo scrapes live Pokémon GO data and provides clean, structured JSON files for
 
 All data files are available via raw GitHub URLs:
 
-| Data Type      | Formatted URL                                                                 | Minified URL                                                                 |
-|---------------|-------------------------------------------------------------------------------|------------------------------------------------------------------------------|
-| **Combined (All Data)** | [combined.json](https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/combined.json) | [combined.min.json](https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/combined.min.json) |
+| Data Type | Formatted URL | Minified URL |
+|-----------|--------------|--------------||
 | **Eggs** | [eggs.json](https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/eggs.json) | [eggs.min.json](https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/eggs.min.json) |
 | **Events** | [events.json](https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/events.json) | [events.min.json](https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/events.min.json) |
 | **Raids** | [raids.json](https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/raids.json) | [raids.min.json](https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/raids.min.json) |
