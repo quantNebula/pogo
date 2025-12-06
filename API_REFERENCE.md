@@ -30,6 +30,7 @@ pogo provides five JSON endpoints containing live Pokémon GO data. Each endpoin
 
 | Endpoint | Formatted | Minified | Data Type |
 |----------|-----------|----------|-----------|
+| Combined | `combined.json` | `combined.min.json` | Object with all data categories |
 | Eggs | `eggs.json` | `eggs.min.json` | Array of Pokémon objects |
 | Raids | `raids.json` | `raids.min.json` | Array of raid boss objects |
 | Research | `research.json` | `research.min.json` | Object with seasonal info and task arrays |
@@ -43,6 +44,9 @@ pogo provides five JSON endpoints containing live Pokémon GO data. Each endpoin
 ### Quick Access URLs
 
 ```
+Combined (formatted): https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/combined.json
+Combined (minified):  https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/combined.min.json
+
 Eggs (formatted):    https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/eggs.json
 Eggs (minified):     https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/eggs.min.json
 
@@ -57,6 +61,48 @@ Rocket Lineups (minified):  https://raw.githubusercontent.com/quantNebula/pogo/r
 
 Events (formatted):  https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/events.json
 Events (minified):   https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/events.min.json
+```
+
+---
+
+## Combined Data
+
+**What it contains:** A single JSON file containing all Pokémon GO data from all categories in one convenient endpoint.
+
+**Data structure:** Object with five properties (events, raids, research, eggs, rocketLineups)
+
+### Combined Object Schema
+
+```typescript
+{
+  events: Array<EventObject>,           // All events data
+  raids: Array<RaidObject>,             // All raid bosses data
+  research: ResearchObject,             // Research tasks and seasonal info
+  eggs: Array<EggObject>,               // All egg hatches data
+  rocketLineups: Array<RocketObject>    // Team GO Rocket lineups data
+}
+```
+
+### Benefits of the Combined Endpoint
+
+- **Single Request:** Fetch all game data with one API call
+- **Reduced Latency:** Fewer network requests = faster load times
+- **Data Consistency:** All data is from the same scrape run
+- **Simplified Code:** No need to manage multiple endpoints
+
+### Usage Example
+
+```javascript
+// Fetch all Pokémon GO data at once
+fetch('https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/combined.json')
+  .then(response => response.json())
+  .then(data => {
+    console.log('Events:', data.events);
+    console.log('Current raids:', data.raids);
+    console.log('Field research:', data.research);
+    console.log('Egg hatches:', data.eggs);
+    console.log('Rocket lineups:', data.rocketLineups);
+  });
 ```
 
 ---
