@@ -6,7 +6,6 @@ The Research endpoint provides information about current Field Research tasks, t
 
 ## Accessing the Data
 
-- **Formatted:** [research.json](https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/research.json)
 - **Minified:** [research.min.json](https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/research.min.json)
 
 ## Data Structure
@@ -30,11 +29,11 @@ The endpoint returns an **object** containing seasonal information and an array 
 
 ### Task Object
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `text` | string | The task description (e.g., "Catch 5 Pokémon") |
-| `type` | string | Task category (e.g., "catch", "throw", "battle") |
-| `rewards` | array | Array of possible rewards for this task |
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `text` | string | Yes | The task description (e.g., "Catch 5 Pokémon") |
+| `type` | string | No | Task category (e.g., "catch", "throw", "battle") |
+| `rewards` | array | Yes | Array of possible rewards for this task |
 
 ### Reward Object
 
@@ -49,8 +48,8 @@ Rewards can be either **encounters** or **items**.
 | `image` | string | URL to the Pokémon's icon image |
 | `canBeShiny` | boolean | Whether the encounter can be shiny |
 | `combatPower` | object | CP range for the encounter |
-| `combatPower.min` | number | Minimum CP |
-| `combatPower.max` | number | Maximum CP |
+| `combatPower.min` | integer | Minimum CP |
+| `combatPower.max` | integer | Maximum CP |
 
 #### Item Reward
 
@@ -59,7 +58,23 @@ Rewards can be either **encounters** or **items**.
 | `type` | string | Always `"item"` for item rewards |
 | `name` | string | Item name with quantity (e.g., "×10") |
 | `image` | string | URL to the item icon image |
-| `quantity` | number | Number of items rewarded |
+| `quantity` | integer | Number of items rewarded |
+
+## Task Type Categories
+
+Available task types include:
+
+- `catch` - Catching Pokémon (general or specific types)
+- `throw` - Making various types of throws (Nice, Great, Excellent, Curveball)
+- `battle` - Battling in raids, gyms, or GO Battle League
+- `explore` - Exploration tasks (hatching eggs, spinning stops, walking distance)
+- `training` - Powering up or evolving Pokémon, earning XP/Stardust
+- `buddy` - Buddy-related tasks (hearts, candies, treats, photos)
+- `rocket` - Team GO Rocket battles
+- `sponsored` - Sponsored research tasks
+- `ar` - AR scanning tasks
+
+**Note:** Some tasks may not have a `type` field specified.
 
 ## Example Data
 
@@ -115,86 +130,178 @@ Rewards can be either **encounters** or **items**.
 
 ## Usage Examples
 
-### JavaScript
+### Basic Data Fetching
+
+```javascript
+// Fetch research data
+fetch('https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/research.min.json')
+  .then(response => response.json())
+  .then(data => {
+    console.log('Current breakthrough:', data.seasonalInfo.breakthroughPokemon);
+    console.log('Available Spinda patterns:', data.seasonalInfo.spindaPatterns);
+    console.log('Total tasks:', data.tasks.length);
+  });
+```
+
+### Finding Specific Rewards
 
 ```javascript
 fetch('https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/research.min.json')
   .then(response => response.json())
   .then(data => {
-    // Get current breakthrough Pokémon
-    const breakthroughMons = data.seasonalInfo.breakthroughPokemon;
-    
     // Find all tasks that reward encounters
     const encounterTasks = data.tasks.filter(task =>
       task.rewards.some(reward => reward.type === 'encounter')
     );
-    
+
     // Find tasks with shiny-eligible encounters
     const shinyTasks = data.tasks.filter(task =>
-      task.rewards.some(reward => 
+      task.rewards.some(reward =>
         reward.type === 'encounter' && reward.canBeShiny
       )
     );
-    
-    // Get all catch-type tasks
-    const catchTasks = data.tasks.filter(task => task.type === 'catch');
-    
+
     // Find tasks that reward Rare Candy
     const rareCandyTasks = data.tasks.filter(task =>
       task.rewards.some(reward =>
         reward.type === 'item' && reward.name.includes('Rare Candy')
       )
     );
+
+    console.log(`Found ${shinyTasks.length} tasks with shiny encounters`);
   });
 ```
 
-### Python
+### Filtering by Task Type
 
-```python
-import requests
+```javascript
+fetch('https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/research.min.json')
+  .then(response => response.json())
+  .then(data => {
+    // Group tasks by type
+    const tasksByType = data.tasks.reduce((acc, task) => {
+      const type = task.type || 'uncategorized';
+      if (!acc[type]) acc[type] = [];
+      acc[type].push(task);
+      return acc;
+    }, {});
 
-response = requests.get('https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/research.min.json')
-data = response.json()
+    // Get all catch-type tasks
+    const catchTasks = tasksByType.catch || [];
+  
+    // Get all throw-type tasks
+    const throwTasks = tasksByType.throw || [];
 
-# Get seasonal info
-season = data['seasonalInfo']['season']
-spinda_patterns = data['seasonalInfo']['spindaPatterns']
+    console.log(`Catch tasks: ${catchTasks.length}`);
+    console.log(`Throw tasks: ${throwTasks.length}`);
+  });
+```
 
-# Group tasks by type
-tasks_by_type = {}
-for task in data['tasks']:
-    task_type = task.get('type', 'unknown')
-    if task_type not in tasks_by_type:
-        tasks_by_type[task_type] = []
-    tasks_by_type[task_type].append(task)
+### Finding Tasks for Specific Pokémon
 
-# Find all unique encounter Pokémon from tasks
-encounters = set()
-for task in data['tasks']:
-    for reward in task['rewards']:
-        if reward['type'] == 'encounter':
-            encounters.add(reward['name'])
+```javascript
+fetch('https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/research.min.json')
+  .then(response => response.json())
+  .then(data => {
+    // Function to find tasks that reward a specific Pokémon
+    function getTasksForPokemon(pokemonName) {
+      return data.tasks.filter(task =>
+        task.rewards.some(reward =>
+          reward.type === 'encounter' &&
+          reward.name === pokemonName
+        )
+      );
+    }
 
-# Get tasks that reward a specific Pokémon
-def get_tasks_for_pokemon(pokemon_name):
-    matching_tasks = []
-    for task in data['tasks']:
-        for reward in task['rewards']:
-            if reward.get('type') == 'encounter' and reward['name'] == pokemon_name:
-                matching_tasks.append(task['text'])
-    return matching_tasks
+    // Find tasks that reward Dratini
+    const dratiniTasks = getTasksForPokemon('Dratini');
+    dratiniTasks.forEach(task => {
+      console.log(`Task: ${task.text}`);
+    });
+  });
+```
 
-# Calculate best tasks for Stardust
-def get_stardust_tasks():
-    stardust_tasks = []
-    for task in data['tasks']:
-        for reward in task['rewards']:
-            if reward.get('type') == 'item' and 'Stardust' in reward.get('image', ''):
-                stardust_tasks.append({
-                    'task': task['text'],
-                    'amount': reward['quantity']
-                })
-    return sorted(stardust_tasks, key=lambda x: x['amount'], reverse=True)
+### Analyzing Stardust Rewards
+
+```javascript
+fetch('https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/research.min.json')
+  .then(response => response.json())
+  .then(data => {
+    // Get tasks sorted by Stardust reward amount
+    const stardustTasks = data.tasks
+      .map(task => {
+        const stardustReward = task.rewards.find(reward =>
+          reward.type === 'item' && reward.image.includes('Stardust')
+        );
+        return stardustReward ? {
+          task: task.text,
+          amount: stardustReward.quantity,
+          type: task.type
+        } : null;
+      })
+      .filter(item => item !== null)
+      .sort((a, b) => b.amount - a.amount);
+
+    console.log('Best Stardust tasks:');
+    stardustTasks.slice(0, 5).forEach(task => {
+      console.log(`${task.task}: ${task.amount} Stardust`);
+    });
+  });
+```
+
+### Building a Task Filter UI
+
+```javascript
+fetch('https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/research.min.json')
+  .then(response => response.json())
+  .then(data => {
+    // Get all unique Pokémon encounters
+    const allEncounters = new Set();
+    data.tasks.forEach(task => {
+      task.rewards.forEach(reward => {
+        if (reward.type === 'encounter') {
+          allEncounters.add(reward.name);
+        }
+      });
+    });
+
+    // Get all unique task types
+    const taskTypes = [...new Set(
+      data.tasks
+        .map(task => task.type)
+        .filter(type => type !== undefined)
+    )];
+
+    console.log('Available encounters:', Array.from(allEncounters).sort());
+    console.log('Task types:', taskTypes.sort());
+  });
+```
+
+### Checking for Rare Encounters
+
+```javascript
+fetch('https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/research.min.json')
+  .then(response => response.json())
+  .then(data => {
+    // List of rare Pokémon to check for
+    const rarePokemon = ['Axew', 'Noibat', 'Gible', 'Deino', 'Jangmo-o'];
+
+    rarePokemon.forEach(pokemon => {
+      const tasks = data.tasks.filter(task =>
+        task.rewards.some(reward =>
+          reward.type === 'encounter' && reward.name === pokemon
+        )
+      );
+
+      if (tasks.length > 0) {
+        console.log(`\n${pokemon} found in ${tasks.length} task(s):`);
+        tasks.forEach(task => {
+          const reward = task.rewards.find(r => r.name === pokemon);
+          console.log(`- ${task.text} (CP: ${reward.combatPower.min}-${reward.combatPower.max}, Shiny: ${reward.canBeShiny})`);
+        });
+      }
+    });
+  });
 ```
 
 ## Common Use Cases
@@ -207,29 +314,29 @@ def get_stardust_tasks():
 6. **Breakthrough Planning** - Show what Pokémon players can get from Research Breakthrough
 7. **Task Type Filtering** - Filter by catch, throw, battle, or other task types
 8. **Item Farming** - Identify tasks that reward specific items (Rare Candy, Golden Razz, etc.)
-
-## Task Type Categories
-
-Common task types include:
-
-- `catch` - Catching Pokémon (general or specific types)
-- `throw` - Making various types of throws (Nice, Great, Excellent, Curveball)
-- `battle` - Battling in raids, gyms, or GO Battle League
-- `buddy` - Buddy-related tasks (hearts, walks, photos)
-- `evolve` - Evolving Pokémon
-- `power` - Powering up Pokémon
-- `hatch` - Hatching eggs
-- `photo` - Taking snapshots
-- `send` - Sending gifts
+9. **CP Range Display** - Show expected CP ranges for encounter rewards
+10. **Quest Tracker** - Build an app to track completed and available research tasks
 
 ## Notes
 
 - Field Research tasks rotate daily at midnight local time
-- Some tasks have multiple possible rewards (spin the wheel mechanic)
-- Research Breakthrough requires completing 7 Field Research tasks (one per day)
+- Some tasks have multiple possible rewards (one reward is selected randomly when completing the task)
+- Research Breakthrough requires completing 7 Field Research tasks (one stamp per day)
 - Breakthrough Pokémon change monthly
-- Spinda patterns rotate periodically
-- CP values for encounter rewards are for level 15 Pokémon
+- Spinda patterns rotate periodically (current patterns in `spindaPatterns` array)
+- CP values for encounter rewards are for level 15 Pokémon (weather-boosted encounters are level 20)
 - Some tasks only appear during specific events
-- Tasks with the same text can have different rewards during different events
-- Research tasks don't require you to catch or complete on the same day you receive them
+- Tasks with the same text may have different rewards during different events
+- Research tasks don't need to be completed on the same day they are received
+- Players can hold up to 3 Field Research tasks at a time (up to 4 with certain conditions)
+- Not all tasks have a `type` field - handle this appropriately in your code
+
+## JSON Schema
+
+The data conforms to the following JSON Schema structure:
+
+- Root object contains `seasonalInfo` (object) and `tasks` (array)
+- Each task has `text` (string, required), optional `type` (string), and `rewards` (array, required)
+- Rewards are either encounter type (with `canBeShiny`, `combatPower`) or item type (with `quantity`)
+- All rewards include `type`, `name`, and `image` fields
+- Combat power objects include `min` and `max` integers

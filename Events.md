@@ -2,160 +2,246 @@
 
 ## Overview
 
-The Events endpoint provides comprehensive information about current and upcoming Pokémon GO events, including detailed event-specific data for Community Days, Raid Battles, Spotlight Hours, and more.
+The Events endpoint provides comprehensive information about current and upcoming Pokémon GO events, including Community Days, Raid Battles, Spotlight Hours, GO Battle League seasons, and special events.
 
 ## Accessing the Data
 
-- **Formatted:** [events.json](https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/events.json)
 - **Minified:** [events.min.json](https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/events.min.json)
 
 ## Data Structure
 
-The endpoint returns an **array** of event objects, where each object represents a current or upcoming event.
+The endpoint returns an **array** of event objects, where each object represents a current or upcoming event in Pokémon GO.
 
-### Base Event Object
-
-All events contain these base fields:
+### Event Object
 
 | Field | Type | Description |
 |-------|------|-------------|
 | `eventID` | string | Unique identifier for the event |
-| `name` | string | Display name of the event |
-| `eventType` | string | Type of event (see Event Types section) |
-| `heading` | string | Category heading for the event |
-| `link` | string | URL to detailed event information on LeekDuck |
-| `image` | string | URL to the event banner image |
-| `start` | string | ISO 8601 date string for event start time |
-| `end` | string | ISO 8601 date string for event end time |
-| `timezone` | string \| null | Timezone indicator ("Local Time", "PST", "PDT", "EST", "EDT", "UTC", or null) |
-| `extraData` | object \| undefined | Additional event-specific data (structure varies by event type) |
+| `name` | string | Full display name of the event |
+| `eventType` | string | Type of event (see Event Types below) |
+| `heading` | string | Category heading for display purposes |
+| `link` | string (uri) | URL to detailed event information on LeekDuck |
+| `image` | string (uri) | URL to event banner/promotional image |
+| `start` | string (date-time) | Event start time in ISO 8601 format |
+| `end` | string (date-time) | Event end time in ISO 8601 format |
+| `timezone` | string \| null | Timezone information ("Local Time" for local events, null for UTC) |
+| `extraData` | object \| null | Event-specific additional data (varies by event type) |
 
 ### Event Types
 
-Common event types include:
+The following event types are available:
 
-- `community-day` - Monthly Community Day events
-- `pokemon-spotlight-hour` - Weekly one-hour events featuring a specific Pokémon
-- `raid-battles` - Special raid events or raid boss rotations
-- `raid-hour` - Weekly one-hour raid events
-- `research-day` - Special research task events
-- `research-breakthrough` - Research Breakthrough reward rotations
-- `event` - General events (seasonal, themed, etc.)
-- `go-battle-league` - GO Battle League seasons and special cups
-- `city-safari` - Location-specific ticketed events
-- `max-battles` - Max Battle events
-- `max-mondays` - Weekly Max Battle events
-- `pokestop-showcase` - PokéStop Showcase events
+| Event Type | Description |
+|------------|-------------|
+| `community-day` | Monthly Community Day events featuring specific Pokémon |
+| `pokemon-spotlight-hour` | Weekly one-hour events featuring a specific Pokémon |
+| `raid-battles` | Raid boss rotation events |
+| `raid-hour` | Weekly one-hour raid events |
+| `raid-day` | Special all-day raid events |
+| `go-battle-league` | PvP league rotations and seasons |
+| `max-mondays` | Weekly Max Monday events |
+| `max-battles` | Max Battle special events |
+| `pokestop-showcase` | PokéStop Showcase competitions |
+| `city-safari` | Location-specific City Safari events |
+| `pokemon-go-tour` | Large-scale GO Tour events |
+| `research-day` | Special research task events |
+| `event` | General in-game events |
+| `go-pass` | GO Pass subscription periods |
+| `research` | Special or Masterwork research availability |
+| `season` | Game seasons (3-month periods) |
 
-### Extra Data Structures
+## Extra Data Structures
 
-The `extraData` object contains event-type-specific information. All events include a `generic` object with basic flags.
+The `extraData` field varies based on event type and may contain event-specific information.
 
-#### Generic Data (All Events)
-
-```json
-"extraData": {
-    "generic": {
-        "hasSpawns": boolean,
-        "hasFieldResearchTasks": boolean
-    }
-}
-```
-
-#### Community Day Extra Data
+### Community Day Extra Data
 
 ```json
-"extraData": {
-    "communityday": {
-        "spawns": [
-            {
-                "name": "Pokémon name",
-                "image": "URL to Pokémon icon"
+{
+  "communityday": {
+    "spawns": [
+      {
+        "name": "Vanillite",
+        "image": "https://cdn.leekduck.com/assets/img/pokemon_icons/pokemon_icon_582_00.png"
+      }
+    ],
+    "bonuses": [
+      {
+        "text": "2x XP for catching Pokémon",
+        "image": "https://cdn.leekduck.com/assets/img/events/bonuses/xp.png"
+      }
+    ],
+    "bonusDisclaimers": ["Disclaimer text"],
+    "shinies": [
+      {
+        "name": "Vanillite",
+        "image": "https://cdn.leekduck.com/assets/img/pokemon_icons/pokemon_icon_582_00_shiny.png"
+      }
+    ],
+    "specialresearch": [
+      {
+        "name": "December Community Day 2025 (1/5)",
+        "step": 1,
+        "tasks": [
+          {
+            "text": "Catch 25 Pokémon",
+            "reward": {
+              "text": "Karrablast",
+              "image": "https://cdn.leekduck.com/assets/img/pokemon_icons_crop/pokemon_icon_588_00.png"
             }
+          }
         ],
-        "bonuses": [
-            {
-                "text": "Bonus description",
-                "image": "URL to bonus icon"
-            }
-        ],
-        "bonusDisclaimers": ["Disclaimer text"],
-        "shinies": [
-            {
-                "name": "Pokémon name",
-                "image": "URL to shiny Pokémon icon"
-            }
-        ],
-        "specialresearch": [
-            {
-                "name": "Research name (step/total)",
-                "step": 1,
-                "tasks": [
-                    {
-                        "text": "Task description",
-                        "reward": {
-                            "text": "Reward name",
-                            "image": "URL to reward icon"
-                        }
-                    }
-                ],
-                "rewards": [
-                    {
-                        "text": "Reward name or quantity",
-                        "image": "URL to reward icon"
-                    }
-                ]
-            }
+        "rewards": [
+          {
+            "text": "×2025",
+            "image": "https://cdn.leekduck.com/assets/img/items/Stardust.png"
+          }
         ]
-    }
+      }
+    ]
+  },
+  "generic": {
+    "hasSpawns": true,
+    "hasFieldResearchTasks": true
+  }
 }
 ```
 
-#### Spotlight Hour Extra Data
+### Raid Battles Extra Data
 
 ```json
-"extraData": {
-    "spotlight": {
-        "featuredPokemon": "Pokémon name",
-        "bonusText": "Bonus description",
-        "canBeShiny": boolean,
-        "evolutionFamily": ["Pokémon1", "Pokémon2", "Pokémon3"]
-    }
+{
+  "raidbattles": {
+    "bosses": [
+      {
+        "name": "Kyurem",
+        "image": "https://cdn.leekduck.com/assets/img/pokemon_icons/pokemon_icon_646_11.png",
+        "canBeShiny": true
+      }
+    ],
+    "shinies": [
+      {
+        "name": "Kyurem",
+        "image": "https://cdn.leekduck.com/assets/img/pokemon_icons/pokemon_icon_646_11_shiny.png"
+      }
+    ]
+  },
+  "generic": {
+    "hasSpawns": false,
+    "hasFieldResearchTasks": false
+  }
 }
 ```
 
-#### Raid Battles Extra Data
+### Spotlight Hour Extra Data
 
 ```json
-"extraData": {
-    "raidbattles": {
-        "bosses": ["Boss1", "Boss2"],
-        "shinies": ["Pokémon1", "Pokémon2"]
-    }
+{
+  "spotlight": {
+    "name": "Shieldon",
+    "canBeShiny": true,
+    "image": "https://cdn.leekduck.com/assets/img/pokemon_icons/pokemon_icon_410_00.png",
+    "bonus": "2× Catch XP",
+    "list": [
+      {
+        "name": "Shieldon",
+        "canBeShiny": true,
+        "image": "https://cdn.leekduck.com/assets/img/pokemon_icons/pokemon_icon_410_00.png"
+      }
+    ]
+  },
+  "generic": {
+    "hasSpawns": true,
+    "hasFieldResearchTasks": false
+  }
 }
 ```
 
-#### Research Breakthrough Extra Data
+### Generic Extra Data
+
+Most events include a `generic` object with flags:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `hasSpawns` | boolean | Whether the event features special wild Pokémon spawns |
+| `hasFieldResearchTasks` | boolean | Whether the event includes special field research tasks |
+
+## JSON Schema
 
 ```json
-"extraData": {
-    "breakthrough": {
-        "pokemon": [
-            {
-                "name": "Pokémon name",
-                "image": "URL to Pokémon icon",
-                "canBeShiny": boolean
-            }
-        ]
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "array",
+  "title": "Pokémon GO Events",
+  "description": "Array of current and upcoming Pokémon GO events",
+  "items": {
+    "type": "object",
+    "required": ["eventID", "name", "eventType", "heading", "link", "image", "start", "end", "timezone", "extraData"],
+    "properties": {
+      "eventID": {
+        "type": "string",
+        "description": "Unique identifier for the event"
+      },
+      "name": {
+        "type": "string",
+        "description": "Full name of the event"
+      },
+      "eventType": {
+        "type": "string",
+        "enum": [
+          "community-day",
+          "pokestop-showcase",
+          "max-mondays",
+          "event",
+          "go-battle-league",
+          "pokemon-spotlight-hour",
+          "raid-hour",
+          "raid-battles",
+          "city-safari",
+          "max-battles",
+          "research-day",
+          "raid-day",
+          "go-pass",
+          "pokemon-go-tour",
+          "research",
+          "season"
+        ],
+        "description": "Type of event"
+      },
+      "heading": {
+        "type": "string",
+        "description": "Display heading for the event"
+      },
+      "link": {
+        "type": "string",
+        "format": "uri",
+        "description": "URL link to event details"
+      },
+      "image": {
+        "type": "string",
+        "format": "uri",
+        "description": "URL to event image"
+      },
+      "start": {
+        "type": "string",
+        "format": "date-time",
+        "description": "Event start time in ISO 8601 format"
+      },
+      "end": {
+        "type": "string",
+        "format": "date-time",
+        "description": "Event end time in ISO 8601 format"
+      },
+      "timezone": {
+        "type": ["string", "null"],
+        "description": "Timezone information (null for UTC)"
+      },
+      "extraData": {
+        "type": ["object", "null"],
+        "description": "Additional event-specific data"
+      }
     }
-}
-```
-
-#### Promo Codes (Research Events)
-
-```json
-"extraData": {
-    "promocodes": ["CODE1", "CODE2"]
+  }
 }
 ```
 
@@ -163,231 +249,567 @@ The `extraData` object contains event-type-specific information. All events incl
 
 ```json
 [
-    {
-        "eventID": "december-communityday2025",
-        "name": "December Community Day 2025",
-        "eventType": "community-day",
-        "heading": "Community Day",
-        "link": "https://leekduck.com/events/december-communityday2025/",
-        "image": "https://cdn.leekduck.com/assets/img/events/article-images/2025/2025-12-06-december-communityday2025/december-2025-community-day.jpg",
-        "start": "2025-12-06T14:00:00.000",
-        "end": "2025-12-07T17:00:00.000",
-        "timezone": "Local Time",
-        "extraData": {
-            "generic": {
-                "hasSpawns": true,
-                "hasFieldResearchTasks": false
-            },
-            "communityday": {
-                "spawns": [
-                    {
-                        "name": "Vanillite",
-                        "image": "https://cdn.leekduck.com/assets/img/pokemon_icons/pokemon_icon_582_00.png"
-                    }
-                ],
-                "bonuses": [
-                    {
-                        "text": "2x XP for catching Pokémon",
-                        "image": "https://cdn.leekduck.com/assets/img/events/bonuses/xp.png"
-                    }
-                ],
-                "bonusDisclaimers": ["Disclaimers..."],
-                "shinies": [
-                    {
-                        "name": "Vanillite",
-                        "image": "https://cdn.leekduck.com/assets/img/pokemon_icons/pokemon_icon_582_00_shiny.png"
-                    }
-                ],
-                "specialresearch": []
-            }
-        }
-    },
-    {
-        "eventID": "quaxly-spotlight-hour-december-2025",
-        "name": "Quaxly Spotlight Hour",
-        "eventType": "pokemon-spotlight-hour",
-        "heading": "Pokémon Spotlight Hour",
-        "link": "https://leekduck.com/events/quaxly-spotlight-hour-december-2025/",
-        "image": "https://cdn.leekduck.com/assets/img/events/pokemonspotlighthours.jpg",
-        "start": "2025-12-10T18:00:00.000",
-        "end": "2025-12-10T19:00:00.000",
-        "timezone": "Local Time",
-        "extraData": {
-            "generic": {
-                "hasSpawns": false,
-                "hasFieldResearchTasks": false
-            },
-            "spotlight": {
-                "featuredPokemon": "Quaxly",
-                "bonusText": "2× Stardust for catching Pokémon",
-                "canBeShiny": true,
-                "evolutionFamily": ["Quaxly", "Quaxwell", "Quaquaval"]
-            }
-        }
+  {
+    "eventID": "pokemonspotlighthour2025-12-09",
+    "name": "Shieldon Spotlight Hour",
+    "eventType": "pokemon-spotlight-hour",
+    "heading": "Pokémon Spotlight Hour",
+    "link": "https://leekduck.com/events/pokemonspotlighthour2025-12-09/",
+    "image": "https://cdn.leekduck.com/assets/img/events/pokemonspotlighthour.jpg",
+    "start": "2025-12-09T18:00:00.000",
+    "end": "2025-12-09T19:00:00.000",
+    "timezone": "Local Time",
+    "extraData": {
+      "spotlight": {
+        "name": "Shieldon",
+        "canBeShiny": true,
+        "image": "https://cdn.leekduck.com/assets/img/pokemon_icons/pokemon_icon_410_00.png",
+        "bonus": "2× Catch XP",
+        "list": [
+          {
+            "name": "Shieldon",
+            "canBeShiny": true,
+            "image": "https://cdn.leekduck.com/assets/img/pokemon_icons/pokemon_icon_410_00.png"
+          }
+        ]
+      },
+      "generic": {
+        "hasSpawns": true,
+        "hasFieldResearchTasks": false
+      }
     }
+  },
+  {
+    "eventID": "kyurem-in-5-star-raid-battles-december-2025",
+    "name": "Kyurem in 5-star Raid Battles",
+    "eventType": "raid-battles",
+    "heading": "Raid Battles",
+    "link": "https://leekduck.com/events/kyurem-in-5-star-raid-battles-december-2025/",
+    "image": "https://cdn.leekduck.com/assets/img/events/kyurem.jpg",
+    "start": "2025-12-04T10:00:00.000",
+    "end": "2025-12-13T10:00:00.000",
+    "timezone": "Local Time",
+    "extraData": {
+      "raidbattles": {
+        "bosses": [
+          {
+            "name": "Kyurem",
+            "image": "https://cdn.leekduck.com/assets/img/pokemon_icons/pokemon_icon_646_11.png",
+            "canBeShiny": true
+          }
+        ],
+        "shinies": [
+          {
+            "name": "Kyurem",
+            "image": "https://cdn.leekduck.com/assets/img/pokemon_icons/pokemon_icon_646_11_shiny.png"
+          }
+        ]
+      },
+      "generic": {
+        "hasSpawns": false,
+        "hasFieldResearchTasks": false
+      }
+    }
+  }
 ]
 ```
 
 ## Usage Examples
 
-### JavaScript
+### Fetching Events Data
+
+```javascript
+// Fetch events data
+fetch('https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/events.min.json')
+  .then(response => response.json())
+  .then(events => {
+    console.log(`Total events: ${events.length}`);
+  })
+  .catch(error => console.error('Error fetching events:', error));
+```
+
+### Get Active Events
 
 ```javascript
 fetch('https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/events.min.json')
   .then(response => response.json())
   .then(events => {
-    // Get current events (happening now)
     const now = new Date();
-    const currentEvents = events.filter(event => {
+  
+    const activeEvents = events.filter(event => {
       const start = new Date(event.start);
       const end = new Date(event.end);
-      return start <= now && now <= end;
+      return now >= start && now <= end;
     });
-    
-    // Get upcoming Community Days
-    const communityDays = events.filter(event =>
-      event.eventType === 'community-day' && new Date(event.start) > now
-    );
-    
-    // Get today's Spotlight Hour
-    const today = now.toISOString().split('T')[0];
-    const spotlightHour = events.find(event =>
-      event.eventType === 'pokemon-spotlight-hour' &&
-      event.start.startsWith(today)
-    );
-    
-    // Find events with spawns
-    const spawnEvents = events.filter(event =>
-      event.extraData?.generic?.hasSpawns === true
-    );
-    
-    // Get events with promo codes
-    const promoEvents = events.filter(event =>
-      event.extraData?.promocodes && event.extraData.promocodes.length > 0
-    );
-    
-    // Extract all shiny Pokémon from Community Days
-    const cdShinies = events
-      .filter(e => e.eventType === 'community-day')
-      .flatMap(e => e.extraData?.communityday?.shinies || []);
+
+    console.log(`${activeEvents.length} active events:`);
+    activeEvents.forEach(event => {
+      console.log(`- ${event.name} (${event.eventType})`);
+    });
   });
 ```
 
-### Python
+### Filter Events by Type
 
-```python
-import requests
-from datetime import datetime, timezone
+```javascript
+fetch('https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/events.min.json')
+  .then(response => response.json())
+  .then(events => {
+    // Get all Community Day events
+    const communityDays = events.filter(e => e.eventType === 'community-day');
+  
+    // Get all Spotlight Hours
+    const spotlightHours = events.filter(e => e.eventType === 'pokemon-spotlight-hour');
+  
+    // Get all Raid Battle events
+    const raidEvents = events.filter(e => e.eventType === 'raid-battles');
 
-response = requests.get('https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/events.min.json')
-events = response.json()
+    console.log(`Community Days: ${communityDays.length}`);
+    console.log(`Spotlight Hours: ${spotlightHours.length}`);
+    console.log(`Raid Events: ${raidEvents.length}`);
+  });
+```
 
-# Parse and sort events by start time
-for event in events:
-    event['start_dt'] = datetime.fromisoformat(event['start'].replace('Z', '+00:00'))
-    event['end_dt'] = datetime.fromisoformat(event['end'].replace('Z', '+00:00'))
+### Get Upcoming Events
 
-events_sorted = sorted(events, key=lambda x: x['start_dt'])
+```javascript
+fetch('https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/events.min.json')
+  .then(response => response.json())
+  .then(events => {
+    const now = new Date();
+    const sevenDaysFromNow = new Date(now.getTime() + (7 * 24 * 60 * 60 * 1000));
 
-# Get active events
-now = datetime.now(timezone.utc)
-active_events = [
-    event for event in events
-    if event['start_dt'] <= now <= event['end_dt']
-]
+    const upcomingEvents = events
+      .filter(event => {
+        const start = new Date(event.start);
+        return start >= now && start <= sevenDaysFromNow;
+      })
+      .sort((a, b) => new Date(a.start) - new Date(b.start));
 
-# Group events by type
-events_by_type = {}
-for event in events:
-    event_type = event['eventType']
-    if event_type not in events_by_type:
-        events_by_type[event_type] = []
-    events_by_type[event_type].append(event)
+    console.log('Events in the next 7 days:');
+    upcomingEvents.forEach(event => {
+      const startDate = new Date(event.start).toLocaleString();
+      console.log(`${event.name} - ${startDate}`);
+    });
+  });
+```
 
-# Get next week's events
-from datetime import timedelta
-next_week = now + timedelta(days=7)
-upcoming_week = [
-    event for event in events
-    if now <= event['start_dt'] <= next_week
-]
+### Working with Community Day Data
 
-# Extract all raid bosses from raid battle events
-raid_bosses = set()
-for event in events:
-    if event['eventType'] == 'raid-battles':
-        bosses = event.get('extraData', {}).get('raidbattles', {}).get('bosses', [])
-        raid_bosses.update(bosses)
+```javascript
+fetch('https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/events.min.json')
+  .then(response => response.json())
+  .then(events => {
+    // Find the next Community Day
+    const now = new Date();
+    const nextCD = events
+      .filter(e => e.eventType === 'community-day' && new Date(e.start) > now)
+      .sort((a, b) => new Date(a.start) - new Date(b.start))[0];
 
-# Find events with special research
-special_research_events = []
-for event in events:
-    if 'communityday' in event.get('extraData', {}):
-        sr = event['extraData']['communityday'].get('specialresearch', [])
-        if sr:
-            special_research_events.append({
-                'name': event['name'],
-                'research': sr
-            })
-
-# Get all bonuses from active Community Days
-cd_bonuses = []
-for event in active_events:
-    if event['eventType'] == 'community-day':
-        bonuses = event.get('extraData', {}).get('communityday', {}).get('bonuses', [])
-        cd_bonuses.extend([b['text'] for b in bonuses])
-
-# Check if a specific Pokémon is featured in any event
-def find_pokemon_events(pokemon_name):
-    matching_events = []
-    for event in events:
-        extra = event.get('extraData', {})
-        
-        # Check Community Day spawns
-        if 'communityday' in extra:
-            spawns = extra['communityday'].get('spawns', [])
-            if any(s['name'] == pokemon_name for s in spawns):
-                matching_events.append(event)
-        
-        # Check Spotlight Hour
-        if 'spotlight' in extra:
-            if extra['spotlight'].get('featuredPokemon') == pokemon_name:
-                matching_events.append(event)
+    if (nextCD && nextCD.extraData?.communityday) {
+      const cdData = nextCD.extraData.communityday;
     
-    return matching_events
+      console.log(`Next Community Day: ${nextCD.name}`);
+      console.log(`Start: ${new Date(nextCD.start).toLocaleString()}`);
+      console.log(`Featured Pokémon: ${cdData.spawns.length}`);
+      console.log(`Bonuses: ${cdData.bonuses.length}`);
+      console.log(`Shiny forms available: ${cdData.shinies.length}`);
+    
+      // List featured Pokémon
+      console.log('\nFeatured Pokémon:');
+      cdData.spawns.forEach(spawn => {
+        console.log(`  - ${spawn.name}`);
+      });
+    
+      // List bonuses
+      console.log('\nActive Bonuses:');
+      cdData.bonuses.forEach(bonus => {
+        console.log(`  - ${bonus.text}`);
+      });
+    }
+  });
+```
+
+### Get Current Raid Bosses
+
+```javascript
+fetch('https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/events.min.json')
+  .then(response => response.json())
+  .then(events => {
+    const now = new Date();
+
+    const activeRaids = events.filter(event => {
+      if (event.eventType !== 'raid-battles') return false;
+      const start = new Date(event.start);
+      const end = new Date(event.end);
+      return now >= start && now <= end;
+    });
+
+    console.log('Current Raid Bosses:');
+    activeRaids.forEach(raid => {
+      if (raid.extraData?.raidbattles?.bosses) {
+        console.log(`\n${raid.name}:`);
+        raid.extraData.raidbattles.bosses.forEach(boss => {
+          console.log(`  - ${boss.name} (Shiny: ${boss.canBeShiny ? 'Yes' : 'No'})`);
+        });
+        const endDate = new Date(raid.end).toLocaleDateString();
+        console.log(`  Ends: ${endDate}`);
+      }
+    });
+  });
+```
+
+### Get This Week's Spotlight Hour
+
+```javascript
+fetch('https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/events.min.json')
+  .then(response => response.json())
+  .then(events => {
+    const now = new Date();
+    const oneWeekFromNow = new Date(now.getTime() + (7 * 24 * 60 * 60 * 1000));
+
+    const spotlightHours = events.filter(event => {
+      if (event.eventType !== 'pokemon-spotlight-hour') return false;
+      const start = new Date(event.start);
+      return start >= now && start <= oneWeekFromNow;
+    });
+
+    spotlightHours.forEach(event => {
+      if (event.extraData?.spotlight) {
+        const spotlight = event.extraData.spotlight;
+        console.log(`\n${event.name}`);
+        console.log(`Time: ${new Date(event.start).toLocaleString()}`);
+        console.log(`Featured: ${spotlight.name}`);
+        console.log(`Bonus: ${spotlight.bonus}`);
+        console.log(`Can be shiny: ${spotlight.canBeShiny ? 'Yes' : 'No'}`);
+      }
+    });
+  });
+```
+
+### Create Event Calendar
+
+```javascript
+fetch('https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/events.min.json')
+  .then(response => response.json())
+  .then(events => {
+    // Group events by date
+    const calendar = {};
+
+    events.forEach(event => {
+      const date = new Date(event.start).toISOString().split('T')[0];
+    
+      if (!calendar[date]) {
+        calendar[date] = [];
+      }
+    
+      calendar[date].push({
+        name: event.name,
+        type: event.eventType,
+        start: event.start,
+        end: event.end,
+        timezone: event.timezone
+      });
+    });
+
+    // Display today's events
+    const today = new Date().toISOString().split('T')[0];
+    if (calendar[today]) {
+      console.log(`Events today (${today}):`);
+      calendar[today].forEach(event => {
+        console.log(`  - ${event.name} (${event.type})`);
+      });
+    }
+  });
+```
+
+### Filter by Date Range
+
+```javascript
+fetch('https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/events.min.json')
+  .then(response => response.json())
+  .then(events => {
+    function getEventsByDateRange(startDate, endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+
+      return events.filter(event => {
+        const eventStart = new Date(event.start);
+        const eventEnd = new Date(event.end);
+      
+        // Event overlaps with date range
+        return eventStart <= end && eventEnd >= start;
+      });
+    }
+
+    // Get all December 2025 events
+    const decemberEvents = getEventsByDateRange('2025-12-01', '2025-12-31');
+  
+    console.log(`December 2025: ${decemberEvents.length} events`);
+    decemberEvents.forEach(event => {
+      console.log(`- ${event.name}`);
+    });
+  });
+```
+
+### Find Events with Special Spawns
+
+```javascript
+fetch('https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/events.min.json')
+  .then(response => response.json())
+  .then(events => {
+    const spawnEvents = events.filter(event =>
+      event.extraData?.generic?.hasSpawns === true
+    );
+
+    console.log(`${spawnEvents.length} events with special spawns:`);
+    spawnEvents.forEach(event => {
+      const start = new Date(event.start).toLocaleDateString();
+      console.log(`- ${event.name} (${start})`);
+    });
+  });
+```
+
+### Calculate Event Duration
+
+```javascript
+fetch('https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/events.min.json')
+  .then(response => response.json())
+  .then(events => {
+    function formatDuration(event) {
+      const start = new Date(event.start);
+      const end = new Date(event.end);
+      const durationMs = end - start;
+
+      const hours = Math.floor(durationMs / (1000 * 60 * 60));
+      const days = Math.floor(hours / 24);
+
+      if (days > 0) {
+        const remainingHours = hours % 24;
+        return remainingHours > 0
+          ? `${days}d ${remainingHours}h`
+          : `${days}d`;
+      }
+      return `${hours}h`;
+    }
+
+    // Show duration for all active events
+    const now = new Date();
+    const activeEvents = events.filter(e =>
+      new Date(e.start) <= now && new Date(e.end) >= now
+    );
+
+    console.log('Active Event Durations:');
+    activeEvents.forEach(event => {
+      console.log(`${event.name}: ${formatDuration(event)}`);
+    });
+  });
+```
+
+### Search Events
+
+```javascript
+fetch('https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/events.min.json')
+  .then(response => response.json())
+  .then(events => {
+    function searchEvents(keyword) {
+      const searchTerm = keyword.toLowerCase();
+
+      return events.filter(event =>
+        event.name.toLowerCase().includes(searchTerm) ||
+        event.eventType.toLowerCase().includes(searchTerm) ||
+        event.heading.toLowerCase().includes(searchTerm)
+      );
+    }
+
+    // Search for Kyurem-related events
+    const kyuremEvents = searchEvents('kyurem');
+    console.log('Kyurem events:', kyuremEvents.map(e => e.name));
+
+    // Search for raid events
+    const raidEvents = searchEvents('raid');
+    console.log(`\nFound ${raidEvents.length} raid-related events`);
+  });
+```
+
+### Get Events by Timezone
+
+```javascript
+fetch('https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/events.min.json')
+  .then(response => response.json())
+  .then(events => {
+    // Separate local time vs UTC events
+    const localTimeEvents = events.filter(e => e.timezone === 'Local Time');
+    const utcEvents = events.filter(e => e.timezone === null);
+
+    console.log(`Local time events: ${localTimeEvents.length}`);
+    console.log(`UTC events: ${utcEvents.length}`);
+
+    // UTC events are often global events or GO Battle League
+    console.log('\nUTC Events:');
+    utcEvents.slice(0, 5).forEach(event => {
+      console.log(`- ${event.name} (${event.eventType})`);
+    });
+  });
+```
+
+### Find Overlapping Events
+
+```javascript
+fetch('https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/events.min.json')
+  .then(response => response.json())
+  .then(events => {
+    function findOverlappingEvents(targetEvent) {
+      const targetStart = new Date(targetEvent.start);
+      const targetEnd = new Date(targetEvent.end);
+
+      return events.filter(event => {
+        if (event.eventID === targetEvent.eventID) return false;
+      
+        const start = new Date(event.start);
+        const end = new Date(event.end);
+      
+        return start < targetEnd && end > targetStart;
+      });
+    }
+
+    // Find events overlapping with Community Day
+    const communityDay = events.find(e =>
+      e.eventType === 'community-day' &&
+      new Date(e.start) > new Date()
+    );
+
+    if (communityDay) {
+      const overlapping = findOverlappingEvents(communityDay);
+      console.log(`Events during ${communityDay.name}:`);
+      overlapping.forEach(event => {
+        console.log(`- ${event.name}`);
+      });
+    }
+  });
+```
+
+### Export Events to CSV
+
+```javascript
+fetch('https://raw.githubusercontent.com/quantNebula/pogo/refs/heads/main/files/events.min.json')
+  .then(response => response.json())
+  .then(events => {
+    function eventsToCSV(events) {
+      const headers = ['Event ID', 'Name', 'Type', 'Start', 'End', 'Timezone'];
+      const rows = events.map(event => [
+        event.eventID,
+        event.name,
+        event.eventType,
+        event.start,
+        event.end,
+        event.timezone || 'UTC'
+      ]);
+
+      return [
+        headers.join(','),
+        ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+      ].join('\n');
+    }
+
+    const csv = eventsToCSV(events);
+    console.log(csv);
+  
+    // To download as file:
+    // const blob = new Blob([csv], { type: 'text/csv' });
+    // const url = URL.createObjectURL(blob);
+    // const a = document.createElement('a');
+    // a.href = url;
+    // a.download = 'pokemon-go-events.csv';
+    // a.click();
+  });
 ```
 
 ## Common Use Cases
 
-1. **Event Calendar** - Display all current and upcoming events
-2. **Active Event Tracking** - Show what's happening right now
-3. **Community Day Planning** - Help players prepare for Community Days with spawn lists and bonuses
-4. **Shiny Tracking** - Identify which Pokémon can be shiny during events
-5. **Bonus Notifications** - Alert players about active bonuses (2x XP, 2x Stardust, etc.)
-6. **Raid Planning** - Show current raid bosses and schedules
-7. **Spotlight Hour Reminders** - Notify players of weekly Spotlight Hours
-8. **Promo Code Distribution** - Share active promo codes from research events
-9. **Research Planning** - Display special research tasks and rewards
-10. **Timezone Handling** - Account for local time vs fixed timezone events
-
-## Timezone Values
-
-- **"Local Time"** - Event times are in the player's local timezone
-- **"PST"** / **"PDT"** - Pacific Time (UTC-8 / UTC-7)
-- **"EST"** / **"EDT"** - Eastern Time (UTC-5 / UTC-4)
-- **"UTC"** - Coordinated Universal Time
-- **null** - No specific timezone information available
+1. **Event Calendar** - Display upcoming events in a calendar format
+2. **Event Notifications** - Send reminders before events start
+3. **Raid Planning** - Coordinate raid groups based on current raid bosses
+4. **Shiny Tracking** - Track which shinies are available during events
+5. **Bonus Optimization** - Show active XP, Stardust, and Candy bonuses
+6. **Community Day Prep** - Display featured Pokémon, bonuses, and special moves
+7. **GO Battle League Tracker** - Track current league rotations and cup restrictions
+8. **Event Overlap Detection** - Find which events are running simultaneously
+9. **Spotlight Hour Planner** - Plan weekly Spotlight Hour participation
+10. **Season Information** - Display current season details and duration
 
 ## Notes
 
-- Event times use ISO 8601 format without timezone indicators (times are as specified in the `timezone` field)
-- Most events use "Local Time" meaning they start/end at the same local time worldwide
-- Some global events use fixed timezones (usually Pacific Time)
-- Events are updated regularly as Niantic announces new content
-- The `extraData` field is only populated by the detailed scraping process
-- Not all events have `extraData` - check for existence before accessing nested properties
-- Community Day events typically run for 3 hours (2 PM - 5 PM local time)
-- Spotlight Hour events are always 1 hour (6 PM - 7 PM local time)
-- Raid Hour events are 1 hour (6 PM - 7 PM local time)
-- Event data includes both currently running and future announced events
-- Past events are not included in the data
+- Events are sourced from LeekDuck, a trusted Pokémon GO community resource
+- Event times use ISO 8601 format (YYYY-MM-DDTHH:mm:ss.sss)
+- `timezone` field indicates if times are local ("Local Time") or UTC (null)
+- `extraData` structure varies by event type - always check if it exists before accessing
+- Community Days typically run 2-5 PM local time on specific dates
+- Spotlight Hours occur every Tuesday at 6:00 PM local time
+- Raid Hours occur every Wednesday at 6:00 PM local time
+- Events may be added, modified, or cancelled by Niantic with short notice
+- Some events are location-specific (City Safari, GO Tour in-person events)
+- Event images and links point to LeekDuck's CDN and website
+- GO Battle League events use UTC timezone as they rotate globally at the same time
+- Not all events include `extraData` - some events only provide basic information
+- Special research availability periods are tracked as `research` type events
+- Seasons typically last 3 months and define spawn pools, eggs, and research rewards
+
+## Error Handling
+
+```javascript
+// Safe event data access
+function safeGetEvent(events, eventID) {
+  try {
+    const event = events.find(e => e.eventID === eventID);
+    if (!event) {
+      throw new Error(`Event not found: ${eventID}`);
+    }
+    return event;
+  } catch (error) {
+    console.error('Error fetching event:', error.message);
+    return null;
+  }
+}
+
+// Safe date parsing
+function safeParseDate(dateString) {
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      throw new Error('Invalid date');
+    }
+    return date;
+  } catch (error) {
+    console.error('Error parsing date:', error.message);
+    return null;
+  }
+}
+
+// Safe extra data access
+function safeGetExtraData(event, path) {
+  try {
+    const keys = path.split('.');
+    let value = event.extraData;
+  
+    for (const key of keys) {
+      if (value && typeof value === 'object' && key in value) {
+        value = value[key];
+      } else {
+        return null;
+      }
+    }
+  
+    return value;
+  } catch (error) {
+    console.error('Error accessing extra data:', error.message);
+    return null;
+  }
+}
+
+// Example usage
+const spawns = safeGetExtraData(event, 'communityday.spawns');
+if (spawns) {
+  console.log(`Found ${spawns.length} featured Pokémon`);
+}
+```
